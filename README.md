@@ -1,0 +1,1 @@
+The dataset is very heavy (over 1GB) so it was added to the gitignore file.
