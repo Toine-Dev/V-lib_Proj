@@ -1,0 +1,8 @@
+# Requirements for the Streamlit app
+streamlit
+pandas
+numpy
+folium
+streamlit-folium
+scikit-learn
+pickle
