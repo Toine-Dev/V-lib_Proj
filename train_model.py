@@ -8,11 +8,15 @@ import pickle
 from MyFunctions import get_season_from_date, is_rush_hour, is_night, is_vacances, query_weather_api, encode_features, sort_indexes
 
 # Load and preprocess data
-def preprocess_data():
+def preprocess_data(up_to_date=None):
     # Load data
-    df = pd.read_csv("comptage-velo-donnees-compteurs (2).csv", sep=";")
+    # df = pd.read_csv("comptage-velo-donnees-compteurs (2).csv", sep=";")
+    df = pd.read_pickle("comptage_velo_df.pkl")
     print('Data loaded successfully.')
-    
+
+    if up_to_date:
+        df = df[pd.to_datetime(df['date_et_heure_de_comptage'], utc=True) <= pd.to_datetime(up_to_date, utc=True)]
+
     # delete_columns = ['Lien vers photo du site de comptage', 'ID Photos', 'test_lien_vers_photos_du_site_de_comptage_', 'id_photo_1', 'url_sites', 'type_dimage']
     # df = df.drop(delete_columns, axis = 1)
 

@@ -9,6 +9,33 @@ import pickle
 from matplotlib import pyplot as plt
 import seaborn as sns
 from sklearn.ensemble import RandomForestRegressor
+import os
+
+CSV_PATH = "comptage-velo-donnees-compteurs (2).csv"
+PICKLE_PATH = "comptage_velo_df.pkl"
+
+def _create_pickle_from_csv(csv_path=CSV_PATH, pickle_path=PICKLE_PATH):
+    try:
+        df = pd.read_csv(csv_path, sep=";")
+        df.to_pickle(pickle_path)
+        return df
+    except Exception as e:
+        st.error(f"Failed to create pickle from CSV: {e}")
+        return None
+
+# Create pickle only if it doesn't exist
+if not os.path.exists(PICKLE_PATH):
+    _create_pickle_from_csv()
+
+# Load the dataframe from pickle, fall back to creating it from CSV if load fails
+try:
+    cached_df = pd.read_pickle(PICKLE_PATH)
+except Exception:
+    cached_df = _create_pickle_from_csv()
+
+# Accessor to use elsewhere in the app
+def get_cached_dataframe():
+    return cached_df
 
 
 # Set page configuration
@@ -123,7 +150,16 @@ elif page == "Model & Predictions":
         if st.button("Predict"):
             # Combine date and time
             datetime_pred = pd.Timestamp.combine(pred_date, pred_time)
-            
+
+            # Convert to timezone-aware UTC timestamp.
+            # If naive, assume local system timezone then convert to UTC.
+            if datetime_pred.tz is None:
+                local_tz = datetime.now().astimezone().tzinfo
+                datetime_pred = datetime_pred.tz_localize(local_tz)
+            datetime_pred = datetime_pred.tz_convert('UTC')
+
+            # if datetime_pred > 
+
             # Create feature vector
             season = get_season_from_date(datetime_pred)
             hour = datetime_pred.hour
@@ -142,6 +178,8 @@ elif page == "Model & Predictions":
                 **season_dummies.to_dict(),
                 **hour_dummies.to_dict()
             }
+
+            features = pd.read_csv()
             
             # Create DataFrame with all features
             pred_df = pd.DataFrame([features])
